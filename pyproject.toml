@@ -16,6 +16,7 @@ dependencies = [
     "asyncpg>=0.31.0",
     "python-dotenv>=1.2.2",
     "psycopg2-binary==2.9.12",
+    "aiogram>=3.27.0",
 ]
 
 [dependency-groups]
