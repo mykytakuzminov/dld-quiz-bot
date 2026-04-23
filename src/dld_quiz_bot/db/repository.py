@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from asyncpg import Pool
 
-from dld_quiz_bot.models import User
+from dld_quiz_bot.db.models import User
 
 
 async def create_user(
