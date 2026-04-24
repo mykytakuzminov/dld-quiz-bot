@@ -1,5 +1,5 @@
-import os
 from logging.config import fileConfig
+from os import getenv
 
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
@@ -12,7 +12,10 @@ config = context.config
 
 load_dotenv()
 
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", ""))
+url = config.get_main_option("sqlalchemy.url")
+if not url:
+    url = getenv("DATABASE_URL", "")
+config.set_main_option("sqlalchemy.url", url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

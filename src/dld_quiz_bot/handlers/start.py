@@ -12,6 +12,7 @@ from dld_quiz_bot.db.repository import create_user, get_user
 class Registration(StatesGroup):
     waiting_for_land = State()
 
+
 router = Router()
 
 
