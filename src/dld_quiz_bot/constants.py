@@ -15,4 +15,4 @@ GERMAN_STATES = [
     "Sachsen-Anhalt",
     "Schleswig-Holstein",
     "Thüringen",
-]
+]  # pragma: no cover
