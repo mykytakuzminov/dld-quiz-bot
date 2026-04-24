@@ -37,3 +37,11 @@ async def get_user(pool: Pool, telegram_id: int) -> User | None:
         selected_land=record["selected_land"],
         created_at=record["created_at"],
     )
+
+
+async def change_user_land(pool: Pool, telegram_id: int, new_land: str) -> None:
+    query = """
+        UPDATE users SET selected_land = $1 WHERE telegram_id = $2
+    """
+
+    await pool.execute(query, new_land, telegram_id)
