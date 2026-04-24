@@ -6,21 +6,26 @@ from os import getenv
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from dotenv import load_dotenv
 
 from dld_quiz_bot.db.database import close_pool, create_pool
-from dld_quiz_bot.handlers.start import router
+from dld_quiz_bot.handlers.settings import router as settings_router
+from dld_quiz_bot.handlers.start import router as start_router
+
+load_dotenv()
 
 TOKEN = getenv("BOT_TOKEN")
 POOL = getenv("ASYNCPG_URL")
 
 dp = Dispatcher()
-dp.include_router(router)
+
+dp.include_router(start_router)
+dp.include_router(settings_router)
 
 
 async def main() -> None:
     if TOKEN is None:
         raise ValueError("BOT_TOKEN is not set")
-
     if POOL is None:
         raise ValueError("ASYNCPG_URL is not set")
 
