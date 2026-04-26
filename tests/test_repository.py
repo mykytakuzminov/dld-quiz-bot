@@ -1,9 +1,10 @@
 from dld_quiz_bot.db import repository as rp
+from dld_quiz_bot.enums import GermanLand
 
 TELEGRAM_ID = 123456789
 USERNAME = "test_user"
-SELECTED_LAND = "Bayern"
-NEW_LAND = "Berlin"
+SELECTED_LAND = GermanLand("Bayern")
+NEW_LAND = GermanLand("Berlin")
 
 
 async def test_create_user(pool):

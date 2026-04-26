@@ -27,26 +27,30 @@ def upgrade() -> None:
         sa.Column("text", sa.Text(), nullable=False),
         sa.Column("options", sa.JSON(), nullable=False),
         sa.Column("correct_answer", sa.Text(), nullable=False),
-        sa.Column("category", sa.Boolean(), default=False, nullable=False),
-        sa.Column("land", sa.Text()),
+        sa.Column("topic", sa.String(20), nullable=False, index=True),
+        sa.Column("land", sa.String(50), nullable=True, index=True),
     )
 
     op.create_table(
         "users",
         sa.Column("telegram_id", sa.BigInteger(), primary_key=True, nullable=False),
-        sa.Column("username", sa.Text()),
-        sa.Column("selected_land", sa.Text(), nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("username", sa.String(32)),
+        sa.Column("selected_land", sa.String(50), nullable=False),
+        sa.Column(
+            "created_at", sa.TIMESTAMP(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
 
     op.create_table(
         "exam_sessions",
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True, nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=False),
-        sa.Column("total_questions", sa.Integer(), default=33, nullable=False),
-        sa.Column("correct_answers", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.ForeignKeyConstraint(["user_id"], ["users.telegram_id"]),
+        sa.Column("total_questions", sa.Integer(), server_default="33", nullable=False),
+        sa.Column("correct_answers", sa.Integer(), server_default="0", nullable=False),
+        sa.Column(
+            "created_at", sa.TIMESTAMP(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.telegram_id"], ondelete="CASCADE"),
     )
 
 

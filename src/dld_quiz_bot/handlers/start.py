@@ -5,8 +5,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from asyncpg import Pool
 
-from dld_quiz_bot.constants import GERMAN_STATES
 from dld_quiz_bot.db.repository import create_user, get_user
+from dld_quiz_bot.enums import GermanLand
 
 
 class Registration(StatesGroup):
@@ -32,7 +32,8 @@ async def command_start_handler(message: Message, pool: Pool, state: FSMContext)
         )
 
         keyboard = ReplyKeyboardMarkup(
-            keyboard=[[KeyboardButton(text=land)] for land in GERMAN_STATES], resize_keyboard=True
+            keyboard=[[KeyboardButton(text=land.value)] for land in GermanLand],
+            resize_keyboard=True,
         )
 
         await state.set_state(Registration.waiting_for_land)
@@ -40,7 +41,7 @@ async def command_start_handler(message: Message, pool: Pool, state: FSMContext)
     else:
         welcome_back = (
             "<b>Willkommen zurück!</b> 👋\n\n"
-            f"Dein Bundesland: <b>{user.selected_land}</b>.\n"
+            f"Dein Bundesland: <b>{user.selected_land.value}</b>.\n"
             "Zum Ändern: /settings"
         )
 
@@ -52,7 +53,7 @@ async def german_state_handler(message: Message, pool: Pool, state: FSMContext) 
     if message.from_user is None or message.text is None:
         return
 
-    if message.text in GERMAN_STATES:
+    if message.text in [state.value for state in GermanLand]:
         land = f"Ihr Bundesland: {message.text} ✅"
 
         await message.answer(land, reply_markup=ReplyKeyboardRemove())
@@ -61,7 +62,7 @@ async def german_state_handler(message: Message, pool: Pool, state: FSMContext) 
             pool=pool,
             telegram_id=message.from_user.id,
             username=message.from_user.username,
-            selected_land=message.text,
+            selected_land=GermanLand(message.text),
         )
 
         await state.clear()
