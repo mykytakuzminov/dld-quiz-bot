@@ -5,8 +5,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from asyncpg import Pool
 
-from dld_quiz_bot.constants import GERMAN_STATES
 from dld_quiz_bot.db.repository import change_user_land
+from dld_quiz_bot.enums import GermanLand
 
 
 class Settings(StatesGroup):
@@ -35,7 +35,8 @@ async def confirm_land_change_handler(message: Message, state: FSMContext) -> No
         land = "Welches Bundesland möchten Sie wählen? 👇"
 
         keyboard = ReplyKeyboardMarkup(
-            keyboard=[[KeyboardButton(text=land)] for land in GERMAN_STATES], resize_keyboard=True
+            keyboard=[[KeyboardButton(text=land.value)] for land in GermanLand],
+            resize_keyboard=True,
         )
 
         await state.set_state(Settings.choosing_land)
@@ -50,10 +51,10 @@ async def select_new_land_handler(message: Message, pool: Pool, state: FSMContex
     if message.from_user is None or message.text is None:
         return
 
-    if message.text in GERMAN_STATES:
+    if message.text in [state.value for state in GermanLand]:
         land = f"Ihr neues Bundesland: {message.text} ✅"
 
         await message.answer(land, reply_markup=ReplyKeyboardRemove())
-        await change_user_land(pool, message.from_user.id, message.text)
+        await change_user_land(pool, message.from_user.id, GermanLand(message.text))
 
         await state.clear()
