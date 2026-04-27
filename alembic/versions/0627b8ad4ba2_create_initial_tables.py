@@ -78,7 +78,7 @@ def upgrade() -> None:
                 "correct_answer": question["correct_answer"],
                 "topic": question["topic"],
                 "land": question["land"],
-            }
+            },
         )
 
 
