@@ -1,3 +1,4 @@
+import json
 from os import getenv
 
 import pytest
@@ -32,6 +33,30 @@ async def pool():
     pool = await create_pool(POOL)
     yield pool
     await close_pool(pool)
+
+
+@pytest.fixture
+async def add_question(pool):
+    query = """
+        INSERT INTO questions (text, options, correct_answer, topic, land)
+        VALUES ($1, $2, $3, $4, $5)
+    """
+
+    text = "Bei Erziehungsproblemen gehen Sie in Deutschland …"
+    options = json.dumps(
+        [
+            "zum Arzt / zur Ärztin.",
+            "zum Gesundheitsamt.",
+            "zum Einwohnermeldeamt.",
+            "zum Jugendamt.",
+        ],
+        ensure_ascii=False,
+    )
+    correct_answer = "zum Jugendamt."
+    topic = "democracy"
+    land = None
+
+    await pool.execute(query, text, options, correct_answer, topic, land)
 
 
 @pytest.fixture(autouse=True)
