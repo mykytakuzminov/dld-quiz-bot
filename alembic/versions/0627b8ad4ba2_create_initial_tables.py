@@ -28,6 +28,14 @@ def load_questions_from_json(filepath: Path) -> Any:
     return questions
 
 
+def find_project_root() -> Path:
+    current = Path(__file__)
+    for parent in current.parents:
+        if (parent / "pyproject.toml").exists():
+            return parent
+    raise FileNotFoundError("pyproject.toml not found")
+
+
 def upgrade() -> None:
     """Upgrade schema."""
     op.create_table(
@@ -63,23 +71,32 @@ def upgrade() -> None:
     )
 
     conn = op.get_bind()
-    PATH = Path(__file__).parent.parent.parent / "data" / "questions.json"
-    questions = load_questions_from_json(PATH)
 
-    for question in questions:
-        conn.execute(
-            sa.text("""
-                INSERT INTO questions (text, options, correct_answer, topic, land)
-                VALUES (:text, :options, :correct_answer, :topic, :land)
-            """),
-            {
-                "text": question["text"],
-                "options": json.dumps(question["options"], ensure_ascii=False),
-                "correct_answer": question["correct_answer"],
-                "topic": question["topic"],
-                "land": question["land"],
-            },
-        )
+    try:
+        root = find_project_root()
+        path = root / "data" / "questions.json"
+
+        if path.exists():
+            questions = load_questions_from_json(path)
+
+            for question in questions:
+                conn.execute(
+                    sa.text("""
+                        INSERT INTO questions (text, options, correct_answer, topic, land)
+                        VALUES (:text, :options, :correct_answer, :topic, :land)
+                    """),
+                    {
+                        "text": question["text"],
+                        "options": json.dumps(question["options"], ensure_ascii=False),
+                        "correct_answer": question["correct_answer"],
+                        "topic": question["topic"],
+                        "land": question["land"],
+                    },
+                )
+        else:
+            print(f"Seed data not found at {path}, skipping insert.")
+    except Exception as e:
+        print(f"Could not seed data: {e}")
 
 
 def downgrade() -> None:
