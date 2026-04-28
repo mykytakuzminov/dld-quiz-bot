@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from asyncpg import Pool
 
-from dld_quiz_bot.db.models import Question, User
+from dld_quiz_bot.db.models import ExamSession, Question, User
 from dld_quiz_bot.enums import GermanLand
 
 
@@ -93,3 +93,18 @@ async def create_exam_record(pool: Pool, telegram_id: int, correct_answers: int)
     """
 
     await pool.execute(query, telegram_id, correct_answers)
+
+
+async def get_stats(pool: Pool, telegram_id: int) -> list[ExamSession]:
+    user = await get_user(pool, telegram_id)
+
+    if user is None:
+        return []
+
+    query = """
+        SELECT * FROM exam_sessions WHERE user_id = $1 ORDER BY created_at DESC
+    """
+
+    exam_sessions = await pool.fetch(query, telegram_id)
+
+    return [ExamSession.from_record(session) for session in exam_sessions]

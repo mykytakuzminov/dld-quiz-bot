@@ -3,7 +3,7 @@ import enum
 
 class Topic(enum.Enum):
     DEMOCRACY = "democracy"
-    HOSTORY = "history"
+    HISTORY = "history"
     SOCIETY = "society"
 
 
