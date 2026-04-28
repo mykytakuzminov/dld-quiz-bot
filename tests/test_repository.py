@@ -90,3 +90,19 @@ async def test_get_land_questions_return_empty_list(pool):
 async def test_create_exam_record(pool):
     await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
     await rp.create_exam_record(pool, TELEGRAM_ID, CORRECT_ANSWERS)
+
+
+async def test_get_stats(pool):
+    await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
+    await rp.create_exam_record(pool, TELEGRAM_ID, CORRECT_ANSWERS)
+    exam_sessions = await rp.get_stats(pool, TELEGRAM_ID)
+    assert len(exam_sessions) == 1
+
+    session = exam_sessions[0]
+    assert session.user_id == TELEGRAM_ID
+    assert session.correct_answers == CORRECT_ANSWERS
+
+
+async def test_get_stats_return_empty_list(pool):
+    exam_sessions = await rp.get_stats(pool, TELEGRAM_ID)
+    assert len(exam_sessions) == 0

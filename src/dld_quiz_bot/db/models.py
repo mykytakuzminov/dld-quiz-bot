@@ -52,3 +52,13 @@ class ExamSession:
     total_questions: int = 33
     correct_answers: int = 0
     created_at: datetime | None = None
+
+    @classmethod
+    def from_record(cls, record: Record) -> ExamSession:
+        return cls(
+            id=record["id"],
+            user_id=record["user_id"],
+            total_questions=record["total_questions"],
+            correct_answers=record["correct_answers"],
+            created_at=record["created_at"],
+        )

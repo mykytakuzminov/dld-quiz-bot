@@ -13,6 +13,7 @@ from dld_quiz_bot.handlers.exam import router as exam_router
 from dld_quiz_bot.handlers.learn import router as learn_router
 from dld_quiz_bot.handlers.settings import router as settings_router
 from dld_quiz_bot.handlers.start import router as start_router
+from dld_quiz_bot.handlers.stats import router as stats_router
 
 load_dotenv()
 
@@ -25,6 +26,7 @@ dp.include_router(start_router)
 dp.include_router(settings_router)
 dp.include_router(learn_router)
 dp.include_router(exam_router)
+dp.include_router(stats_router)
 
 
 async def main() -> None:
