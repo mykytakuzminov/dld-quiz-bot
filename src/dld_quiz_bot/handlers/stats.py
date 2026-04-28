@@ -28,7 +28,7 @@ async def stats_handler(message: Message, pool: Pool) -> None:
             f"Tests abgeschlossen: <b>{total}</b>\n"
             f"Durchschnitt: <b>{avg:.1f}/33</b> ({avg / 33 * 100:.0f}%)\n"
             f"Bestes Ergebnis: <b>{best}/33</b> ({best / 33 * 100:.0f}%)\n\n"
-            f"Letztes Test: <b>{last.correct_answers}/33</b>"
+            f"🕐 Letztes Test: <b>{last.correct_answers}/33</b>"
         )
 
     await message.answer(stats_message)

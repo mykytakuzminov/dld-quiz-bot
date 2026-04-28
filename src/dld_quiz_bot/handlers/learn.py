@@ -22,7 +22,7 @@ async def send_next_question(message: Message, pool: Pool, state: FSMContext) ->
         return
     question = await get_random_question(pool, message.from_user.id)
     if question is None:
-        await message.answer("Keine Fragen gefunden.")
+        await message.answer("🤷 Keine Fragen gefunden.")
         return
     await send_question(message, question, state, Learning.waiting_for_answer)
 
