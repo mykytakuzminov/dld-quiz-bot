@@ -1,16 +1,13 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
-from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
 
 from dld_quiz_bot.db.models import Question
 
 
 async def send_question(
-        message: Message,
-        question: Question,
-        state: FSMContext,
-        next_state: State
-    ) -> None:
+    message: Message, question: Question, state: FSMContext, next_state: State
+) -> None:
     question_message = (
         f"❓<b>Frage {question.id}</b>\n\n"
         f"<i>{question.text}</i>\n\n"
@@ -33,7 +30,7 @@ async def send_question(
     await message.answer(question_message, reply_markup=keyboard)
 
 
-async def check_answer(message: Message, question: Question, state: FSMContext,) -> bool:
+async def check_answer(message: Message, question: Question) -> bool:
     match message.text:
         case "A":
             selected = question.options[0]
@@ -55,10 +52,3 @@ async def check_answer(message: Message, question: Question, state: FSMContext,)
         )
 
     return selected == question.correct_answer
-
-
-async def stop(message: Message, state: FSMContext) -> None:
-    await state.clear()
-    await message.answer(
-        "Gut gemacht! Bis zum nächsten Mal! 👋", reply_markup=ReplyKeyboardRemove()
-    )

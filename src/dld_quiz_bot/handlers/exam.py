@@ -5,13 +5,14 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
 from asyncpg import Pool
 
-from dld_quiz_bot.db.repository import get_general_questions, get_land_questions, create_exam_record
+from dld_quiz_bot.db.repository import create_exam_record, get_general_questions, get_land_questions
 from dld_quiz_bot.handlers.utils import check_answer, send_question
 
 
 class Exam(StatesGroup):
     confirming_test_beginning = State()
     waiting_for_answer = State()
+
 
 router = Router()
 
@@ -27,7 +28,9 @@ async def exam_handler(message: Message, state: FSMContext) -> None:
         "Drücken Sie auf <b>'Starten'</b>, um den Test zu beginnen 👇"
     )
 
-    keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Starten")]], resize_keyboard=True)
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text="Starten")]], resize_keyboard=True
+    )
 
     await state.set_state(Exam.confirming_test_beginning)
     await message.answer(intro_message, reply_markup=keyboard)
@@ -42,11 +45,7 @@ async def start_exam_handler(message: Message, pool: Pool, state: FSMContext) ->
     land_questions = await get_land_questions(pool, message.from_user.id)
     questions = general_questions + land_questions
 
-    await state.update_data(
-        questions=questions,
-        current_index=0,
-        correct_count=0
-    )
+    await state.update_data(questions=questions, current_index=0, correct_count=0)
 
     await send_question(message, questions[0], state, Exam.waiting_for_answer)
 
@@ -61,7 +60,7 @@ async def exam_answer_handler(message: Message, pool: Pool, state: FSMContext) -
     current_index = data["current_index"]
     correct_count = data["correct_count"]
 
-    if await check_answer(message, questions[current_index], state):
+    if await check_answer(message, questions[current_index]):
         correct_count += 1
 
     current_index += 1

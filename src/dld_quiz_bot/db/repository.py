@@ -68,9 +68,6 @@ async def get_general_questions(pool: Pool, limit: int = 23) -> list[Question]:
 
     questions = await pool.fetch(query, limit)
 
-    if questions is None:
-        return []
-
     return [Question.from_record(question) for question in questions]
 
 

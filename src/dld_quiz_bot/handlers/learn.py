@@ -2,11 +2,11 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardRemove
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import get_random_question
-from dld_quiz_bot.handlers.utils import check_answer, send_question, stop
+from dld_quiz_bot.handlers.utils import check_answer, send_question
 
 
 class Learning(StatesGroup):
@@ -40,10 +40,13 @@ async def answer_handler(message: Message, pool: Pool, state: FSMContext) -> Non
     data = await state.get_data()
     question = data["question"]
 
-    await check_answer(message, question, state)
+    await check_answer(message, question)
     await send_next_question(message, pool, state)
 
 
 @router.message(Command("stop"))
 async def stop_handler(message: Message, state: FSMContext) -> None:
-    await stop(message, state)
+    await state.clear()
+    await message.answer(
+        "Gut gemacht! Bis zum nächsten Mal! 👋", reply_markup=ReplyKeyboardRemove()
+    )
