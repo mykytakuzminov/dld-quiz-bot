@@ -1,10 +1,9 @@
-import json
 from datetime import datetime, timezone
 
 from asyncpg import Pool
 
 from dld_quiz_bot.db.models import Question, User
-from dld_quiz_bot.enums import GermanLand, Topic
+from dld_quiz_bot.enums import GermanLand
 
 
 async def create_user(
@@ -28,17 +27,12 @@ async def get_user(pool: Pool, telegram_id: int) -> User | None:
         SELECT * FROM users WHERE telegram_id = $1
     """
 
-    record = await pool.fetchrow(query, telegram_id)
+    user = await pool.fetchrow(query, telegram_id)
 
-    if record is None:
+    if user is None:
         return None
 
-    return User(
-        telegram_id=record["telegram_id"],
-        username=record["username"],
-        selected_land=GermanLand(record["selected_land"]),
-        created_at=record["created_at"],
-    )
+    return User.from_record(user)
 
 
 async def change_user_land(pool: Pool, telegram_id: int, new_land: GermanLand) -> None:
@@ -64,11 +58,32 @@ async def get_random_question(pool: Pool, telegram_id: int) -> Question | None:
     if question is None:
         return None
 
-    return Question(
-        id=question["id"],
-        text=question["text"],
-        options=json.loads(question["options"]),
-        correct_answer=question["correct_answer"],
-        topic=Topic(question["topic"]),
-        land=GermanLand(question["land"]) if question["land"] is not None else None,
-    )
+    return Question.from_record(question)
+
+
+async def get_general_questions(pool: Pool, limit: int = 23) -> list[Question]:
+    query = """
+        SELECT * FROM questions WHERE land IS NULL ORDER BY RANDOM() LIMIT $1
+    """
+
+    questions = await pool.fetch(query, limit)
+
+    if questions is None:
+        return []
+
+    return [Question.from_record(question) for question in questions]
+
+
+async def get_land_questions(pool: Pool, telegram_id: int, limit: int = 10) -> list[Question]:
+    user = await get_user(pool, telegram_id)
+
+    if user is None:
+        return []
+
+    query = """
+        SELECT * FROM questions WHERE land = $1 ORDER BY RANDOM() LIMIT $2
+    """
+
+    questions = await pool.fetch(query, user.selected_land.value, limit)
+
+    return [Question.from_record(question) for question in questions]
