@@ -87,3 +87,12 @@ async def get_land_questions(pool: Pool, telegram_id: int, limit: int = 10) -> l
     questions = await pool.fetch(query, user.selected_land.value, limit)
 
     return [Question.from_record(question) for question in questions]
+
+
+async def create_exam_record(pool: Pool, telegram_id: int, correct_answers: int) -> None:
+    query = """
+        INSERT INTO exam_sessions (user_id, correct_answers)
+        VALUES ($1, $2)
+    """
+
+    await pool.execute(query, telegram_id, correct_answers)
