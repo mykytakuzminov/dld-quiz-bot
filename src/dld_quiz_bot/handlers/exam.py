@@ -2,7 +2,7 @@ from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
+from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import create_exam_record, get_general_questions, get_land_questions
@@ -68,7 +68,9 @@ async def exam_answer_handler(message: Message, pool: Pool, state: FSMContext) -
 
     if current_index >= len(questions):
         await create_exam_record(pool, message.from_user.id, correct_count)
-        await message.answer(f"🎉 Ergebnis: {correct_count}/{len(questions)}")
+        await message.answer(
+            f"🎉 Ergebnis: {correct_count}/{len(questions)}", reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
         return
 

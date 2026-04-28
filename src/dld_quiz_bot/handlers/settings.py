@@ -19,7 +19,7 @@ router = Router()
 
 @router.message(Command("settings"))
 async def settings_handler(message: Message, state: FSMContext) -> None:
-    confirm_message = "Möchten Sie Ihr Bundesland ändern?"
+    confirm_message = "⚙️ Möchten Sie Ihr Bundesland ändern?"
 
     keyboard = ReplyKeyboardMarkup(
         keyboard=[[KeyboardButton(text="Ja"), KeyboardButton(text="Nein")]], resize_keyboard=True
@@ -42,7 +42,7 @@ async def confirm_land_change_handler(message: Message, state: FSMContext) -> No
         await state.set_state(Settings.choosing_land)
         await message.answer(land, reply_markup=keyboard)
     else:
-        await message.answer("Nichts wird geändert.", reply_markup=ReplyKeyboardRemove())
+        await message.answer("Nichts wird geändert. ✅", reply_markup=ReplyKeyboardRemove())
         await state.clear()
 
 
@@ -52,7 +52,7 @@ async def select_new_land_handler(message: Message, pool: Pool, state: FSMContex
         return
 
     if message.text in [state.value for state in GermanLand]:
-        land = f"Ihr neues Bundesland: {message.text} ✅"
+        land = f"Ihr neues Bundesland: <b>{message.text}</b> ✅"
 
         await message.answer(land, reply_markup=ReplyKeyboardRemove())
         await change_user_land(pool, message.from_user.id, GermanLand(message.text))
