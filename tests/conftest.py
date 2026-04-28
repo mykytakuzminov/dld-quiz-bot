@@ -36,7 +36,7 @@ async def pool():
 
 
 @pytest.fixture
-async def add_question(pool):
+async def add_general_question(pool):
     query = """
         INSERT INTO questions (text, options, correct_answer, topic, land)
         VALUES ($1, $2, $3, $4, $5)
@@ -55,6 +55,25 @@ async def add_question(pool):
     correct_answer = "zum Jugendamt."
     topic = "democracy"
     land = None
+
+    await pool.execute(query, text, options, correct_answer, topic, land)
+
+
+@pytest.fixture
+async def add_land_question(pool):
+    query = """
+        INSERT INTO questions (text, options, correct_answer, topic, land)
+        VALUES ($1, $2, $3, $4, $5)
+    """
+
+    text = "Welches ist ein Landkreis in Bayern?"
+    options = json.dumps(
+        ["Prignitz", "Rhein-Sieg-Kreis", "Nordfriesland", "Altötting"],
+        ensure_ascii=False,
+    )
+    correct_answer = "Altötting"
+    topic = "society"
+    land = "Bayern"
 
     await pool.execute(query, text, options, correct_answer, topic, land)
 
