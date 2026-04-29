@@ -6,7 +6,7 @@ from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKey
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import create_exam_record, get_general_questions, get_land_questions
-from dld_quiz_bot.handlers.utils import check_answer, send_question
+from dld_quiz_bot.handlers.utils import check_answer, check_user_registered, send_question
 
 
 class Exam(StatesGroup):
@@ -18,7 +18,10 @@ router = Router()
 
 
 @router.message(Command("exam"))
-async def exam_handler(message: Message, state: FSMContext) -> None:
+async def exam_handler(message: Message, pool: Pool, state: FSMContext) -> None:
+    if not await check_user_registered(message, pool):
+        return
+
     intro_message = (
         "📋 <b>Das Leben in Deutschland</b>\n\n"
         "Der Test besteht aus <b>33 Fragen</b>:\n"

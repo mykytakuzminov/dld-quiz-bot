@@ -6,7 +6,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import get_random_question
-from dld_quiz_bot.handlers.utils import check_answer, send_question
+from dld_quiz_bot.handlers.utils import check_answer, check_user_registered, send_question
 
 
 class Learning(StatesGroup):
@@ -29,6 +29,9 @@ async def send_next_question(message: Message, pool: Pool, state: FSMContext) ->
 
 @router.message(Command("learn"))
 async def learn_handler(message: Message, pool: Pool, state: FSMContext) -> None:
+    if not await check_user_registered(message, pool):
+        return
+
     await send_next_question(message, pool, state)
 
 

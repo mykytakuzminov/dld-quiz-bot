@@ -4,6 +4,7 @@ from aiogram.types import Message
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import get_stats
+from dld_quiz_bot.handlers.utils import check_user_registered
 
 router = Router()
 
@@ -11,6 +12,9 @@ router = Router()
 @router.message(Command("stats"))
 async def stats_handler(message: Message, pool: Pool) -> None:
     if message.from_user is None:
+        return
+
+    if not await check_user_registered(message, pool):
         return
 
     stats = await get_stats(pool, message.from_user.id)
@@ -26,7 +30,7 @@ async def stats_handler(message: Message, pool: Pool) -> None:
         stats_message = (
             f"📊 <b>Ihre Statistik</b>\n\n"
             f"Tests abgeschlossen: <b>{total}</b>\n"
-            f"Durchschnitt: <b>{avg:.1f}/33</b> ({avg / 33 * 100:.0f}%)\n"
+            f"Durchschnitt: <b>{avg:.0f}/33</b> ({avg / 33 * 100:.0f}%)\n"
             f"Bestes Ergebnis: <b>{best}/33</b> ({best / 33 * 100:.0f}%)\n\n"
             f"🕐 Letztes Test: <b>{last.correct_answers}/33</b>"
         )
