@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from dld_quiz_bot.db.database import close_pool, create_pool
 from dld_quiz_bot.handlers.exam import router as exam_router
+from dld_quiz_bot.handlers.info import router as info_router
 from dld_quiz_bot.handlers.learn import router as learn_router
 from dld_quiz_bot.handlers.settings import router as settings_router
 from dld_quiz_bot.handlers.start import router as start_router
@@ -27,6 +28,7 @@ dp.include_router(settings_router)
 dp.include_router(learn_router)
 dp.include_router(exam_router)
 dp.include_router(stats_router)
+dp.include_router(info_router)
 
 
 async def main() -> None:
