@@ -1,8 +1,10 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
+from asyncpg import Pool
 
 from dld_quiz_bot.db.models import Question
+from dld_quiz_bot.db.repository import get_user
 
 
 async def send_question(
@@ -52,3 +54,18 @@ async def check_answer(message: Message, question: Question) -> bool:
         )
 
     return selected == question.correct_answer
+
+
+async def check_user_registered(message: Message, pool: Pool) -> bool:
+    if message.from_user is None:
+        return False
+
+    user = await get_user(pool, message.from_user.id)
+
+    if user is None:
+        await message.answer(
+            "⚠️ Sie sind noch nicht registriert.\nBitte starten Sie den Bot mit /start"
+        )
+        return False
+
+    return True
