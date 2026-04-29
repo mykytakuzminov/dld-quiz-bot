@@ -7,6 +7,7 @@ from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import create_user, get_user
 from dld_quiz_bot.enums import GermanLand
+from dld_quiz_bot.handlers.info import send_info
 
 
 class Registration(StatesGroup):
@@ -54,10 +55,6 @@ async def german_state_handler(message: Message, pool: Pool, state: FSMContext) 
         return
 
     if message.text in [state.value for state in GermanLand]:
-        land = f"Ihr Bundesland: {message.text} ✅"
-
-        await message.answer(land, reply_markup=ReplyKeyboardRemove())
-
         await create_user(
             pool=pool,
             telegram_id=message.from_user.id,
@@ -65,4 +62,8 @@ async def german_state_handler(message: Message, pool: Pool, state: FSMContext) 
             selected_land=GermanLand(message.text),
         )
 
+        land = f"Ihr Bundesland: {message.text} ✅"
+
+        await message.answer(land, reply_markup=ReplyKeyboardRemove())
         await state.clear()
+        await send_info(message)
