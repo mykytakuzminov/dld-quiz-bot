@@ -1,6 +1,8 @@
+from pathlib import Path
+
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
-from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup
+from aiogram.types import FSInputFile, KeyboardButton, Message, ReplyKeyboardMarkup
 from asyncpg import Pool
 
 from dld_quiz_bot.db.models import Question
@@ -27,9 +29,18 @@ async def send_question(
         resize_keyboard=True,
     )
 
+    BASE_DIR = Path(__file__).parent.parent.parent.parent
+    IMAGES_DIR = BASE_DIR / "data" / "images"
+
+    image_path = IMAGES_DIR / f"{question.id}.png"
+
     await state.set_state(next_state)
     await state.update_data(question=question)
     await message.answer(question_message, reply_markup=keyboard)
+
+    if image_path.exists():
+        photo = FSInputFile(image_path)
+        await message.answer_photo(photo)
 
 
 async def check_answer(message: Message, question: Question) -> bool:
