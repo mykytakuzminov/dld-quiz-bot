@@ -1,0 +1,13 @@
+FROM python:3.14-slim
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+
+COPY . .
+
+RUN uv sync --frozen --no-dev
+
+CMD ["uv", "run", "python", "-m", "src.dld_quiz_bot.main"]
