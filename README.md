@@ -12,6 +12,8 @@
 
 > A Telegram quiz bot for preparing to the **Das Leben in Deutschland** citizenship test — practice all 310 questions and take full mock exams.
 
+🤖 **[@dldquizbot](https://t.me/dldquizbot)** — available 24/7
+
 ## Features
 
 - 🗺️ **Land selection** — questions tailored to your specific German federal state
