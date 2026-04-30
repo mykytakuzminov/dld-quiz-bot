@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+*.egg-info/
+
+# Env
+.env
+*.env
+
+# Testing & Quality
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.ruff_cache/
+.mypy_cache/
+
+# IDEs & OS
+.vscode/
+.idea/
+.DS_Store
+
+# Git
+.git
+.gitignore
+.github/
+
+# Docker (не треба копіювати сам Docker в контейнер)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Документація
+README.md
+LICENSE
+
+# Tests (не потрібні в продакшені)
+tests/
