@@ -5,7 +5,7 @@ from aiogram.fsm.state import State
 from aiogram.types import FSInputFile, KeyboardButton, Message, ReplyKeyboardMarkup
 from asyncpg import Pool
 
-from dld_quiz_bot.db.models import Question
+from dld_quiz_bot.db.models import Question, User
 from dld_quiz_bot.db.repository import get_user
 
 
@@ -67,9 +67,9 @@ async def check_answer(message: Message, question: Question) -> bool:
     return selected == question.correct_answer
 
 
-async def check_user_registered(message: Message, pool: Pool) -> bool:
+async def check_user_registered(message: Message, pool: Pool) -> User | None:
     if message.from_user is None:
-        return False
+        return None
 
     user = await get_user(pool, message.from_user.id)
 
@@ -77,6 +77,6 @@ async def check_user_registered(message: Message, pool: Pool) -> bool:
         await message.answer(
             "⚠️ Sie sind noch nicht registriert.\nBitte starten Sie den Bot mit /start"
         )
-        return False
+        return None
 
-    return True
+    return user

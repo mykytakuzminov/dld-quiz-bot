@@ -43,17 +43,12 @@ async def change_user_land(pool: Pool, telegram_id: int, new_land: GermanLand) -
     await pool.execute(query, new_land.value, telegram_id)
 
 
-async def get_random_question(pool: Pool, telegram_id: int) -> Question | None:
-    user = await get_user(pool, telegram_id)
-
-    if user is None:
-        return None
-
+async def get_random_question(pool: Pool, land: GermanLand) -> Question | None:
     query = """
         SELECT * FROM questions WHERE land IS NULL OR land = $1 ORDER BY RANDOM() LIMIT 1
     """
 
-    question = await pool.fetchrow(query, user.selected_land.value)
+    question = await pool.fetchrow(query, land.value)
 
     if question is None:
         return None
@@ -71,17 +66,12 @@ async def get_general_questions(pool: Pool, limit: int = 23) -> list[Question]:
     return [Question.from_record(question) for question in questions]
 
 
-async def get_land_questions(pool: Pool, telegram_id: int, limit: int = 10) -> list[Question]:
-    user = await get_user(pool, telegram_id)
-
-    if user is None:
-        return []
-
+async def get_land_questions(pool: Pool, land: GermanLand, limit: int = 10) -> list[Question]:
     query = """
         SELECT * FROM questions WHERE land = $1 ORDER BY RANDOM() LIMIT $2
     """
 
-    questions = await pool.fetch(query, user.selected_land.value, limit)
+    questions = await pool.fetch(query, land.value, limit)
 
     return [Question.from_record(question) for question in questions]
 
@@ -96,11 +86,6 @@ async def create_exam_record(pool: Pool, telegram_id: int, correct_answers: int)
 
 
 async def get_stats(pool: Pool, telegram_id: int) -> list[ExamSession]:
-    user = await get_user(pool, telegram_id)
-
-    if user is None:
-        return []
-
     query = """
         SELECT * FROM exam_sessions WHERE user_id = $1 ORDER BY created_at DESC
     """

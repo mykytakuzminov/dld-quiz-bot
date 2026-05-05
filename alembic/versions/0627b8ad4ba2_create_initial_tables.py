@@ -6,10 +6,7 @@ Create Date: 2026-04-22 14:07:02.076145
 
 """
 
-import json
 from collections.abc import Sequence
-from pathlib import Path
-from typing import Any
 
 import sqlalchemy as sa
 
@@ -20,20 +17,6 @@ revision: str = "0627b8ad4ba2"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
-
-
-def load_questions_from_json(filepath: Path) -> Any:
-    with open(filepath, encoding="utf-8") as f:
-        questions = json.load(f)
-    return questions
-
-
-def find_project_root() -> Path:
-    current = Path(__file__)
-    for parent in current.parents:
-        if (parent / "pyproject.toml").exists():
-            return parent
-    raise FileNotFoundError("pyproject.toml not found")
 
 
 def upgrade() -> None:
@@ -69,34 +52,6 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(["user_id"], ["users.telegram_id"], ondelete="CASCADE"),
     )
-
-    conn = op.get_bind()
-
-    try:
-        root = find_project_root()
-        path = root / "data" / "questions.json"
-
-        if path.exists():
-            questions = load_questions_from_json(path)
-
-            for question in questions:
-                conn.execute(
-                    sa.text("""
-                        INSERT INTO questions (text, options, correct_answer, topic, land)
-                        VALUES (:text, :options, :correct_answer, :topic, :land)
-                    """),
-                    {
-                        "text": question["text"],
-                        "options": json.dumps(question["options"], ensure_ascii=False),
-                        "correct_answer": question["correct_answer"],
-                        "topic": question["topic"],
-                        "land": question["land"],
-                    },
-                )
-        else:
-            print(f"Seed data not found at {path}, skipping insert.")
-    except Exception as e:
-        print(f"Could not seed data: {e}")
 
 
 def downgrade() -> None:
