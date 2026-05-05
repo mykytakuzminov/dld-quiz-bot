@@ -20,18 +20,21 @@ router = Router()
 async def send_next_question(message: Message, pool: Pool, state: FSMContext) -> None:
     if message.from_user is None:
         return
-    question = await get_random_question(pool, message.from_user.id)
+
+    if (user := await check_user_registered(message, pool)) is None:
+        return
+
+    question = await get_random_question(pool, user.selected_land)
+
     if question is None:
         await message.answer("🤷 Keine Fragen gefunden.")
         return
+
     await send_question(message, question, state, Learning.waiting_for_answer)
 
 
 @router.message(Command("learn"))
 async def learn_handler(message: Message, pool: Pool, state: FSMContext) -> None:
-    if not await check_user_registered(message, pool):
-        return
-
     await send_next_question(message, pool, state)
 
 

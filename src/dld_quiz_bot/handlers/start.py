@@ -22,9 +22,7 @@ async def command_start_handler(message: Message, pool: Pool, state: FSMContext)
     if message.from_user is None or message.text is None:
         return
 
-    user = await get_user(pool, message.from_user.id)
-
-    if user is None:
+    if (user := await get_user(pool, message.from_user.id)) is None:
         about = (
             "<b>Herzlich Willkommen!</b> 👋\n\n"
             "Ich bin dein Lernbegleiter für den Einbürgerungstest <b>Das Leben in Deutschland</b>.\n\n"

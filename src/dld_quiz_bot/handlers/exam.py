@@ -18,10 +18,7 @@ router = Router()
 
 
 @router.message(Command("exam"))
-async def exam_handler(message: Message, pool: Pool, state: FSMContext) -> None:
-    if not await check_user_registered(message, pool):
-        return
-
+async def exam_handler(message: Message, state: FSMContext) -> None:
     intro_message = (
         "📋 <b>Das Leben in Deutschland</b>\n\n"
         "Der Test besteht aus <b>33 Fragen</b>:\n"
@@ -44,12 +41,18 @@ async def start_exam_handler(message: Message, pool: Pool, state: FSMContext) ->
     if message.from_user is None:
         return
 
+    if (user := await check_user_registered(message, pool)) is None:
+        return
+
     general_questions = await get_general_questions(pool)
-    land_questions = await get_land_questions(pool, message.from_user.id)
-    questions = general_questions + land_questions
+    land_questions = await get_land_questions(pool, user.selected_land)
+
+    if len(questions := general_questions + land_questions) == 0:
+        await message.answer("⚠️ Fragen konnten nicht geladen werden.", reply_markup=ReplyKeyboardRemove())
+        await state.clear()
+        return
 
     await state.update_data(questions=questions, current_index=0, correct_count=0)
-
     await send_question(message, questions[0], state, Exam.waiting_for_answer)
 
 

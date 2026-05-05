@@ -14,12 +14,10 @@ async def stats_handler(message: Message, pool: Pool) -> None:
     if message.from_user is None:
         return
 
-    if not await check_user_registered(message, pool):
+    if (user := await check_user_registered(message, pool)) is None:
         return
 
-    stats = await get_stats(pool, message.from_user.id)
-
-    if len(stats) == 0:
+    if len(stats := await get_stats(pool, user.telegram_id)) == 0:
         stats_message = "Sie haben noch keine Tests gemacht. Starte jetzt mit /exam! 🎯"
     else:
         total = len(stats)
