@@ -10,6 +10,7 @@ CORRECT_ANSWERS = 20
 
 async def test_create_user(pool):
     await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
+    assert await rp.get_user(pool, TELEGRAM_ID) is not None
 
 
 async def test_get_user(pool):
@@ -30,12 +31,12 @@ async def test_change_user_land(pool):
     await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
     await rp.change_user_land(pool, TELEGRAM_ID, NEW_LAND)
     user = await rp.get_user(pool, TELEGRAM_ID)
+    assert user is not None
     assert user.selected_land == NEW_LAND
 
 
 async def test_get_random_question(pool, add_general_question):
-    await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
-    question = await rp.get_random_question(pool, TELEGRAM_ID)
+    question = await rp.get_random_question(pool, SELECTED_LAND)
     assert question is not None
     assert isinstance(question.id, int)
     assert isinstance(question.text, str)
@@ -44,11 +45,8 @@ async def test_get_random_question(pool, add_general_question):
     assert isinstance(question.correct_answer, str)
 
 
-async def test_get_random_questions_return_none(pool):
-    question = await rp.get_random_question(pool, TELEGRAM_ID)
-    assert question is None
-    await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
-    question = await rp.get_random_question(pool, TELEGRAM_ID)
+async def test_get_random_question_from_empty_catalog(pool):
+    question = await rp.get_random_question(pool, SELECTED_LAND)
     assert question is None
 
 
@@ -70,8 +68,7 @@ async def test_get_general_questions_return_empty_list(pool):
 
 
 async def test_get_land_questions(pool, add_land_question):
-    await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
-    questions = await rp.get_land_questions(pool, TELEGRAM_ID, limit=1)
+    questions = await rp.get_land_questions(pool, SELECTED_LAND, limit=1)
     assert len(questions) == 1
 
     question = questions[0]
@@ -82,14 +79,15 @@ async def test_get_land_questions(pool, add_land_question):
     assert isinstance(question.correct_answer, str)
 
 
-async def test_get_land_questions_return_empty_list(pool):
-    questions = await rp.get_land_questions(pool, TELEGRAM_ID, limit=1)
+async def test_get_land_questions_from_empty_catalog(pool):
+    questions = await rp.get_land_questions(pool, SELECTED_LAND, limit=1)
     assert len(questions) == 0
 
 
 async def test_create_exam_record(pool):
     await rp.create_user(pool, TELEGRAM_ID, USERNAME, SELECTED_LAND)
     await rp.create_exam_record(pool, TELEGRAM_ID, CORRECT_ANSWERS)
+    assert len(await rp.get_stats(pool, TELEGRAM_ID)) == 1
 
 
 async def test_get_stats(pool):

@@ -48,7 +48,9 @@ async def start_exam_handler(message: Message, pool: Pool, state: FSMContext) ->
     land_questions = await get_land_questions(pool, user.selected_land)
 
     if len(questions := general_questions + land_questions) == 0:
-        await message.answer("⚠️ Fragen konnten nicht geladen werden.", reply_markup=ReplyKeyboardRemove())
+        await message.answer(
+            "⚠️ Fragen konnten nicht geladen werden.", reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
         return
 
