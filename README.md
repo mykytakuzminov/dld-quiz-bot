@@ -47,6 +47,7 @@ Fill in your values in `.env`, then run:
 ```bash
 docker compose up --build -d
 docker compose exec bot uv run alembic upgrade head
+docker compose exec bot uv run python -m dld_quiz_bot.db.seed
 ```
 
 ## Commands
