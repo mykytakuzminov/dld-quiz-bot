@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State
 from aiogram.types import FSInputFile, KeyboardButton, Message, ReplyKeyboardMarkup
@@ -8,6 +6,10 @@ from asyncpg import Pool
 from dld_quiz_bot.db.models import Question, User
 from dld_quiz_bot.db.repository import get_user
 from dld_quiz_bot.enums import AnswerResult
+from dld_quiz_bot.paths import find_project_root
+
+BASE_DIR = find_project_root()
+IMAGES_DIR = BASE_DIR / "data" / "images"
 
 
 async def send_question(
@@ -29,9 +31,6 @@ async def send_question(
         ],
         resize_keyboard=True,
     )
-
-    BASE_DIR = Path(__file__).parent.parent.parent.parent
-    IMAGES_DIR = BASE_DIR / "data" / "images"
 
     image_path = IMAGES_DIR / f"{question.id}.png"
 
