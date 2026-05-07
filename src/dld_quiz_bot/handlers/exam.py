@@ -5,6 +5,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from asyncpg import Pool
 
+from dld_quiz_bot.db.models import User
 from dld_quiz_bot.db.repository import (
     EXAM_GENERAL,
     EXAM_LAND,
@@ -14,7 +15,8 @@ from dld_quiz_bot.db.repository import (
     get_land_questions,
 )
 from dld_quiz_bot.enums import AnswerResult
-from dld_quiz_bot.handlers.utils import check_answer, check_user_registered, send_question
+from dld_quiz_bot.handlers.middleware import UserMiddleware
+from dld_quiz_bot.handlers.utils import check_answer, send_question
 
 
 class Exam(StatesGroup):
@@ -23,6 +25,7 @@ class Exam(StatesGroup):
 
 
 router = Router()
+router.message.middleware(UserMiddleware())
 
 
 @router.message(Command("exam"))
@@ -45,13 +48,7 @@ async def exam_handler(message: Message, state: FSMContext) -> None:
 
 
 @router.message(Exam.confirming_test_beginning, F.text == "Starten")
-async def start_exam_handler(message: Message, pool: Pool, state: FSMContext) -> None:
-    if message.from_user is None:
-        return
-
-    if (user := await check_user_registered(message, pool)) is None:
-        return
-
+async def start_exam_handler(message: Message, pool: Pool, state: FSMContext, user: User) -> None:
     general_questions = await get_general_questions(pool)
     land_questions = await get_land_questions(pool, user.selected_land)
 
@@ -67,10 +64,7 @@ async def start_exam_handler(message: Message, pool: Pool, state: FSMContext) ->
 
 
 @router.message(Exam.waiting_for_answer, ~Command("stop"))
-async def exam_answer_handler(message: Message, pool: Pool, state: FSMContext) -> None:
-    if message.from_user is None or message.text is None:
-        return
-
+async def exam_answer_handler(message: Message, pool: Pool, state: FSMContext, user: User) -> None:
     data = await state.get_data()
     questions = data["questions"]
     current_index = data["current_index"]
@@ -86,7 +80,7 @@ async def exam_answer_handler(message: Message, pool: Pool, state: FSMContext) -
     await state.update_data(current_index=current_index, correct_count=correct_count)
 
     if current_index >= EXAM_TOTAL:
-        await create_exam_record(pool, message.from_user.id, correct_count)
+        await create_exam_record(pool, user.telegram_id, correct_count)
         await message.answer(
             f"🎉 Ergebnis: {correct_count}/{len(questions)}", reply_markup=ReplyKeyboardRemove()
         )

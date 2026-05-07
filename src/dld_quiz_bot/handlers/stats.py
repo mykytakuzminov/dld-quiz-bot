@@ -3,20 +3,16 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from asyncpg import Pool
 
+from dld_quiz_bot.db.models import User
 from dld_quiz_bot.db.repository import EXAM_TOTAL, get_stats
-from dld_quiz_bot.handlers.utils import check_user_registered
+from dld_quiz_bot.handlers.middleware import UserMiddleware
 
 router = Router()
+router.message.middleware(UserMiddleware())
 
 
 @router.message(Command("stats"))
-async def stats_handler(message: Message, pool: Pool) -> None:
-    if message.from_user is None:
-        return
-
-    if (user := await check_user_registered(message, pool)) is None:
-        return
-
+async def stats_handler(message: Message, pool: Pool, user: User) -> None:
     if len(stats := await get_stats(pool, user.telegram_id)) == 0:
         stats_message = "Sie haben noch keine Tests gemacht. Starte jetzt mit /exam! 🎯"
     else:
