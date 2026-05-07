@@ -6,6 +6,7 @@ from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKey
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import create_exam_record, get_general_questions, get_land_questions
+from dld_quiz_bot.enums import AnswerResult
 from dld_quiz_bot.handlers.utils import check_answer, check_user_registered, send_question
 
 
@@ -68,10 +69,13 @@ async def exam_answer_handler(message: Message, pool: Pool, state: FSMContext) -
     current_index = data["current_index"]
     correct_count = data["correct_count"]
 
-    if await check_answer(message, questions[current_index]):
-        correct_count += 1
+    match await check_answer(message, questions[current_index]):
+        case AnswerResult.CORRECT:
+            correct_count += 1
+            current_index += 1
+        case AnswerResult.INCORRECT:
+            current_index += 1
 
-    current_index += 1
     await state.update_data(current_index=current_index, correct_count=correct_count)
 
     if current_index >= len(questions):

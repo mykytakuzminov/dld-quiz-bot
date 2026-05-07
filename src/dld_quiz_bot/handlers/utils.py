@@ -7,6 +7,7 @@ from asyncpg import Pool
 
 from dld_quiz_bot.db.models import Question, User
 from dld_quiz_bot.db.repository import get_user
+from dld_quiz_bot.enums import AnswerResult
 
 
 async def send_question(
@@ -43,7 +44,7 @@ async def send_question(
         await message.answer_photo(photo)
 
 
-async def check_answer(message: Message, question: Question) -> bool:
+async def check_answer(message: Message, question: Question) -> AnswerResult:
     match message.text:
         case "A":
             selected = question.options[0]
@@ -55,16 +56,16 @@ async def check_answer(message: Message, question: Question) -> bool:
             selected = question.options[3]
         case _:
             await message.answer("Bitte antworte mit A, B, C oder D. 👆")
-            return False
+            return AnswerResult.INVALID
 
     if selected == question.correct_answer:
         await message.answer("✅ Richtig!")
+        return AnswerResult.CORRECT
     else:
         await message.answer(
             f"❌ <b>Falsch!</b>\n\n<b><i>Richtige Antwort:</i> {question.correct_answer}</b>"
         )
-
-    return selected == question.correct_answer
+        return AnswerResult.INCORRECT
 
 
 async def check_user_registered(message: Message, pool: Pool) -> User | None:

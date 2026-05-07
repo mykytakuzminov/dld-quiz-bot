@@ -6,6 +6,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from asyncpg import Pool
 
 from dld_quiz_bot.db.repository import get_random_question
+from dld_quiz_bot.enums import AnswerResult
 from dld_quiz_bot.handlers.utils import check_answer, check_user_registered, send_question
 
 
@@ -46,8 +47,11 @@ async def answer_handler(message: Message, pool: Pool, state: FSMContext) -> Non
     data = await state.get_data()
     question = data["question"]
 
-    await check_answer(message, question)
-    await send_next_question(message, pool, state)
+    match await check_answer(message, question):
+        case AnswerResult.CORRECT | AnswerResult.INCORRECT:
+            await send_next_question(message, pool, state)
+        case AnswerResult.INVALID:
+            await send_question(message, question, state, Learning.waiting_for_answer)
 
 
 @router.message(Command("stop"))
