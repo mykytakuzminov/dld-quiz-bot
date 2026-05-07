@@ -5,6 +5,10 @@ from asyncpg import Pool
 from dld_quiz_bot.db.models import ExamSession, Question, User
 from dld_quiz_bot.enums import GermanLand
 
+EXAM_TOTAL = 33
+EXAM_GENERAL = 23
+EXAM_LAND = 10
+
 
 async def create_user(
     pool: Pool,
@@ -57,7 +61,7 @@ async def get_random_question(pool: Pool, land: GermanLand) -> Question | None:
     return Question.from_record(question)
 
 
-async def get_general_questions(pool: Pool, limit: int = 23) -> list[Question]:
+async def get_general_questions(pool: Pool, limit: int = EXAM_GENERAL) -> list[Question]:
     query = """
         SELECT * FROM questions WHERE land IS NULL ORDER BY RANDOM() LIMIT $1
     """
@@ -67,7 +71,9 @@ async def get_general_questions(pool: Pool, limit: int = 23) -> list[Question]:
     return [Question.from_record(question) for question in questions]
 
 
-async def get_land_questions(pool: Pool, land: GermanLand, limit: int = 10) -> list[Question]:
+async def get_land_questions(
+    pool: Pool, land: GermanLand, limit: int = EXAM_LAND
+) -> list[Question]:
     query = """
         SELECT * FROM questions WHERE land = $1 ORDER BY RANDOM() LIMIT $2
     """
