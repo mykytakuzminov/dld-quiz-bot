@@ -1,13 +1,13 @@
-import enum
+from enum import Enum
 
 
-class Topic(enum.Enum):
+class Topic(Enum):
     DEMOCRACY = "democracy"
     HISTORY = "history"
     SOCIETY = "society"
 
 
-class GermanLand(enum.Enum):
+class GermanLand(Enum):
     BADEN_WUERTTEMBERG = "Baden-Württemberg"
     BAYERN = "Bayern"
     BERLIN = "Berlin"
@@ -24,3 +24,9 @@ class GermanLand(enum.Enum):
     SACHSEN_ANHALT = "Sachsen-Anhalt"
     SCHLESWIG_HOLSTEIN = "Schleswig-Holstein"
     THUERINGEN = "Thüringen"
+
+
+class AnswerResult(Enum):
+    CORRECT = "correct"
+    INCORRECT = "incorrect"
+    INVALID = "invalid"
