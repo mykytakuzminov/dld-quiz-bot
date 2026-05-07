@@ -23,6 +23,7 @@ async def seed(pool: Pool) -> None:
         path = root / "data" / "questions.json"
 
         if path.exists():
+            await pool.execute("TRUNCATE questions RESTART IDENTITY")
             questions = load_questions_from_json(path)
 
             for question in questions:
