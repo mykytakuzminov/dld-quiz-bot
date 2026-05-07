@@ -8,6 +8,7 @@ from asyncpg import Pool
 from dotenv import load_dotenv
 
 from dld_quiz_bot.db.database import close_pool, create_pool
+from dld_quiz_bot.paths import find_project_root
 
 
 def load_questions_from_json(filepath: Path) -> Any:
@@ -16,20 +17,13 @@ def load_questions_from_json(filepath: Path) -> Any:
     return questions
 
 
-def find_project_root() -> Path:
-    current = Path(__file__)
-    for parent in current.parents:
-        if (parent / "pyproject.toml").exists():
-            return parent
-    raise FileNotFoundError("pyproject.toml not found")
-
-
 async def seed(pool: Pool) -> None:
     try:
         root = find_project_root()
         path = root / "data" / "questions.json"
 
         if path.exists():
+            await pool.execute("TRUNCATE questions RESTART IDENTITY")
             questions = load_questions_from_json(path)
 
             for question in questions:
