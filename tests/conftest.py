@@ -14,6 +14,7 @@ DATABASE = getenv("TEST_DATABASE_URL")
 POOL = getenv("TEST_ASYNCPG_URL")
 
 
+@pytest.fixture(scope="session", autouse=True)
 def run_migrations():
     if DATABASE is None:
         raise ValueError("TEST_DATABASE_URL is not set")
@@ -23,9 +24,6 @@ def run_migrations():
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("sqlalchemy.url", DATABASE)
     command.upgrade(alembic_cfg, "head")
-
-
-run_migrations()
 
 
 @pytest.fixture
