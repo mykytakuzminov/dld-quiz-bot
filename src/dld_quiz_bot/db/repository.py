@@ -15,6 +15,7 @@ async def create_user(
     query = """
         INSERT INTO users (telegram_id, username, selected_land, created_at)
         VALUES ($1, $2, $3, $4)
+        ON CONFLICT DO NOTHING
     """
 
     created_at = datetime.now(timezone.utc)
