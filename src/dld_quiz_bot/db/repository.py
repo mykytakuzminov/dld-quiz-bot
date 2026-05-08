@@ -6,8 +6,8 @@ from dld_quiz_bot.db.models import ExamSession, Question, User
 from dld_quiz_bot.enums import GermanLand
 
 EXAM_TOTAL = 33
-EXAM_GENERAL = 23
-EXAM_LAND = 10
+EXAM_GENERAL = 30
+EXAM_LAND = 3
 
 
 async def create_user(
