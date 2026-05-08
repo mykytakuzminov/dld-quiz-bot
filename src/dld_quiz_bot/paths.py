@@ -1,9 +1,8 @@
 from pathlib import Path
 
 
-def find_project_root() -> Path:
-    current = Path(__file__)
-    for parent in current.parents:
+def find_project_root(start: Path = Path(__file__)) -> Path:
+    for parent in start.parents:
         if (parent / "pyproject.toml").exists():
             return parent
     raise FileNotFoundError("pyproject.toml not found")

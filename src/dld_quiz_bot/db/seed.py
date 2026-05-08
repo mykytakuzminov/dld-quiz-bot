@@ -17,32 +17,26 @@ def load_questions_from_json(filepath: Path) -> Any:
     return questions
 
 
-async def seed(pool: Pool) -> None:
-    try:
-        root = find_project_root()
-        path = root / "data" / "questions.json"
+async def seed(pool: Pool, from_path: Path) -> None:
+    if from_path.exists():
+        await pool.execute("TRUNCATE questions RESTART IDENTITY")
+        questions = load_questions_from_json(from_path)
 
-        if path.exists():
-            await pool.execute("TRUNCATE questions RESTART IDENTITY")
-            questions = load_questions_from_json(path)
-
-            for question in questions:
-                query = """
+        for question in questions:
+            query = """
                     INSERT INTO questions (text, options, correct_answer, topic, land)
                     VALUES ($1, $2, $3, $4, $5)
                 """
 
-                text = question["text"]
-                options = json.dumps(question["options"], ensure_ascii=False)
-                correct_answer = question["correct_answer"]
-                topic = question["topic"]
-                land = question["land"]
+            text = question["text"]
+            options = json.dumps(question["options"], ensure_ascii=False)
+            correct_answer = question["correct_answer"]
+            topic = question["topic"]
+            land = question["land"]
 
-                await pool.execute(query, text, options, correct_answer, topic, land)
-        else:
-            print(f"Seed data not found at {path}, skipping insert.")
-    except Exception as e:
-        print(f"Could not seed data: {e}")
+            await pool.execute(query, text, options, correct_answer, topic, land)
+    else:
+        print(f"Seed data not found at {from_path}, skipping insert.")
 
 
 load_dotenv()
@@ -50,14 +44,18 @@ load_dotenv()
 POOL = getenv("ASYNCPG_URL")
 
 
-async def main() -> None:
+async def main() -> None:  # pragma: no cover
     if POOL is None:
         raise ValueError("ASYNCPG_URL is not set")
 
     pool = await create_pool(POOL)
-    await seed(pool)
+
+    root = find_project_root()
+    path = root / "data" / "questions.json"
+    await seed(pool, path)
+
     await close_pool(pool)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main())  # pragma: no cover
