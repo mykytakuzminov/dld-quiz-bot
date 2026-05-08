@@ -24,8 +24,8 @@ async def send_question(
 
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="A"), KeyboardButton(text="C")],
-            [KeyboardButton(text="B"), KeyboardButton(text="D")],
+            [KeyboardButton(text="A"), KeyboardButton(text="B")],
+            [KeyboardButton(text="C"), KeyboardButton(text="D")],
         ],
         resize_keyboard=True,
     )
