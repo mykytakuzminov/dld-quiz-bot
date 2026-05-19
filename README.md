@@ -107,7 +107,7 @@ uv run tox
 
 * **Unit & Integration Tests:** Driven by `pytest` with async database isolation.
 ```bash
-uv run pytest
+uv run pytest tests/
 ```
 
 * **Linter & Code Formatting:** Managed by `ruff`.
