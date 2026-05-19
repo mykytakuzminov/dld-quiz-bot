@@ -1,81 +1,122 @@
-# DLD Quiz Bot
+# Das Leben in Deutschland Quiz Bot
 
-![Python](https://img.shields.io/badge/Python-376996?logo=python&logoColor=fff)
-![Aiogram](https://img.shields.io/badge/Aiogram-376996?logo=telegram&logoColor=fff)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-376996?logo=postgresql&logoColor=fff)
-![Alembic](https://img.shields.io/badge/Alembic-376996?logo=postgresql&logoColor=fff)
-![Docker](https://img.shields.io/badge/Docker-376996?logo=docker&logoColor=fff)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-376996?logo=github-actions&logoColor=fff)
-![Uv](https://img.shields.io/badge/Uv-376996?logo=uv&logoColor=fff)
-![Ruff](https://img.shields.io/badge/Ruff-376996?logo=ruff&logoColor=fff)
-![Mypy](https://img.shields.io/badge/Mypy-376996?logo=python&logoColor=fff)
-![Pytest](https://img.shields.io/badge/Pytest-376996?logo=pytest&logoColor=fff)
+![Python](https://img.shields.io/badge/Python-24292e?logo=python&logoColor=fff)
+![Aiogram](https://img.shields.io/badge/Aiogram-24292e?logo=telegram&logoColor=fff)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-24292e?logo=postgresql&logoColor=fff)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-24292e?logo=sqlalchemy&logoColor=fff)
+![Alembic](https://img.shields.io/badge/Alembic-24292e?logo=sqlalchemy&logoColor=fff)
+![Docker](https://img.shields.io/badge/Docker-24292e?logo=docker&logoColor=fff)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-24292e?logo=github-actions&logoColor=fff)
 
-> A Telegram quiz bot for preparing to the **Das Leben in Deutschland** citizenship test — practice all 460 questions and take full mock exams.
-
-🤖 **[@dldquizbot](https://t.me/dldquizbot)** — available 24/7
+> An asynchronous Telegram bot designed to help users prepare for the official German integration exam *"Das Leben in Deutschland" (LiD)*. Features state-dependent quiz modes, region-specific questions, and user statistics tracking.
+>
+> 🚀 **Live Demo:** Try the bot directly on Telegram: [@dldquizbot](https://t.me/dldquizbot) (Running 24/7 on a VPS)
 
 ## 🗺️ Features
 
 | Feature | Description |
 |---|---|
-| Land selection | Questions tailored to your specific German federal state |
-| Practice mode | Random questions one by one with instant feedback |
-| Exam mode | Full 33-question mock test (30 general + 3 land-specific) |
-| Statistics | Track your exam history and average score |
-| Settings | Change your federal state at any time |
-
-## ⚙️ Commands
-
-| Command | Description |
-|---|---|
-| `/start` | Start or restart the bot |
-| `/learn` | Practice individual questions |
-| `/exam` | Take a full mock test |
-| `/stats` | View your test results |
-| `/settings` | Change your federal state |
-| `/stop` | Stop current session |
-| `/info` | Show available commands |
+| **Exam Simulation** | Simulates the real test environment with 33 randomized questions within the time limit. |
+| **State-Specific Content** | Filters and includes specialized questions based on the selected German federal state (Bundesland). |
+| **Progressive Learning** | Allows users to browse questions, choose answering options, and receive instant feedback. |
+| **Statistics Tracking** | Persists user performance data to track passing rates and exam history. |
+| **State Machine (FSM)** | Leverages strict finite state management to handle multi-step user interactions smoothly. |
 
 ## 🛠️ Tech Stack
 
-- **[python](https://www.python.org/)** — core language, 3.14
-- **[aiogram](https://aiogram.dev/)** — async Telegram bot framework
-- **[postgresql](https://www.postgresql.org/)** — relational database
-- **[alembic](https://alembic.sqlalchemy.org/)** — database schema migrations
-- **[docker](https://www.docker.com/)** — containerized deployment
-- **[github actions](https://github.com/features/actions)** — CI + CD on every push
-- **[uv](https://github.com/astral-sh/uv)** — fast package and environment management
-- **[mypy](http://mypy-lang.org/)** — strict static type checking
-- **[ruff](https://github.com/astral-sh/ruff)** — linting and formatting
-- **[pytest](https://docs.pytest.org/)** — async tests with real PostgreSQL
+- **[Python](https://www.python.org/)** — Core language utilizing async/await paradigms.
+- **[Aiogram](https://docs.aiogram.dev/)** — Modern and fully asynchronous framework for Telegram Bots API.
+- **[PostgreSQL](https://www.postgresql.org/)** — Relational database system for user states, progress, and historical stats.
+- **[SQLAlchemy](https://www.sqlalchemy.org/)** — Async ORM layer for robust database communication via `asyncpg`.
+- **[Alembic](https://alembic.sqlalchemy.org/)** — Database schema migration management.
+- **[Docker](https://www.docker.com/)** — Containerized multi-service architecture (Bot application + PostgreSQL instance).
+- **[GitHub Actions](https://github.com/features/actions)** — Automated CI/CD workflow running tests, style formatting, and type-checking on every push.
+
+## 🏗️ Project Architecture & Design Patterns
+
+The project follows a modular, scalable architecture specifically tailored for event-driven Telegram bot development. It decouples message handling from data persistence layers to maintain low coupling.
+
+### 📁 Directory Structure
+- `src/dld_quiz_bot/` — Root package of the application.
+  - `db/` — Database architecture containing connection pooling (`database.py`), SQLAlchemy declarations (`models.py`), automated seeders for the question bank (`seed.py`), and data access objects (`repository.py`).
+  - `handlers/` — Domain-specific message routing and interaction handlers divided by feature layers (`exam.py`, `learn.py`, `stats`, `settings.py`).
+  - `data/` — Static assets including the parsed exam questions dataset (`questions.json`) and illustration vectors.
+  - `main.py` — Bot initialization, polling manager orchestration, and middleware registration.
+
+### 🧬 Architectural Highlights
+
+1. **Repository Pattern (`repository.py`)** — Data transactions are completely isolated from the Telegram event loop. Handlers never write raw SQL or interact directly with database sessions, ensuring clean testing boundaries.
+2. **Finite State Machine (FSM)** — User contexts (e.g., currently running an exam vs. changing settings) are explicitly locked inside states managed asynchronously, preventing collision in concurrent chats.
+3. **Automated Seeding System** — On container initialization, the bot parses structured `questions.json` data and automatically synchronizes the PostgreSQL instance with complete multilingual content and question-to-image mappings.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+- [Docker](https://www.docker.com/) and Docker Compose installed.
+- A Telegram Bot Token obtained from [@BotFather](https://t.me/BotFather).
 
-- [Docker](https://www.docker.com/) and Docker Compose
-- A Telegram bot token from [@BotFather](https://t.me/BotFather)
+### Quick Start
 
-### Setup
-
+1. Clone the repository and navigate into it:
 ```bash
 git clone https://github.com/mykytakuzminov/dld-quiz-bot.git
 cd dld-quiz-bot
+```
+
+2. Configure environment variables:
+```bash
 cp .env.example .env
 ```
 
-Fill in your values in `.env`, then run:
+(Open `.env` and fill in your `BOT_TOKEN` along with database credentials).
 
+3. Run the ecosystem via Docker Compose:
 ```bash
-docker compose up --build -d
+docker compose up -d --build
+```
+
+4. Apply database schemas:
+```bash
 docker compose exec bot uv run alembic upgrade head
+```
+
+5. Run seed script to fill questions table
+```bash
 docker compose exec bot uv run python -m dld_quiz_bot.db.seed
 ```
 
-## 🔧 Development
+## 🔧 Development & Code Quality
 
+This project enforces strict code styling and testing principles via `Tox`.
+
+### Local Installation
+
+Sync dependencies using the ultra-fast `uv` toolchain
 ```bash
 uv sync
+```
+
+### Running Automated Testing & Linting
+
+You can invoke the entire validation suite locally just as it runs inside GitHub Actions:
+
+* **Run Everything (Tox):** Enforces tests, linters, and checkers in isolated environments.
+```bash
 uv run tox
 ```
+
+* **Unit & Integration Tests:** Driven by `pytest` with async database isolation.
+```bash
+uv run pytest
+```
+
+* **Linter & Code Formatting:** Managed by `ruff`.
+```bash
+uv run ruff check
+```
+
+* **Strict Type Auditing:** Evaluated via mypy.
+```bash
+uv run mypy src/
+```
+
