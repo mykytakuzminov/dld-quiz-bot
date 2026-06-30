@@ -39,13 +39,14 @@ Telegram preparation bot to "Das Leben in Deutschland" test
 
 ### Installation
 
-Add `BOT_TOKEN` given by BotFather and run migrations
+Add `BOT_TOKEN` given by BotFather, run migrations and seed questions
 ```bash
 git clone https://github.com/mykytakuzminov/dld-quiz-bot.git
 cd dld-quiz-bot
 cp .env.example .env
 docker compose up -d
 docker compose exec dld-quiz-bot-app /app/.venv/bin/alembic upgrade head
+docker compose exec dld-quiz-bot-app /app/.venv/bin/python -m dld_quiz_bot.db.seed
 ```
 
 ### Development
