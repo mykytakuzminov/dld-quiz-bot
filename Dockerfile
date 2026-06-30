@@ -13,4 +13,5 @@ COPY --from=builder /app/src/ /app/src/
 COPY pyproject.toml ./
 COPY alembic/ ./alembic/
 COPY alembic.ini ./
+COPY data/ ./data/
 CMD ["/app/.venv/bin/python", "-m", "dld_quiz_bot.main"]
