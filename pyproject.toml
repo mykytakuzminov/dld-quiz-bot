@@ -6,7 +6,6 @@ build-backend = "uv_build"
 name = "dld-quiz-bot"
 version = "0.1.0"
 description = "Telegram Quiz Bot for Das Leben in Deutschland"
-readme = "README.md"
 authors = [
     { name = "Mykyta Kuzminov", email = "mykytakuzminov@gmail.com" }
 ]
