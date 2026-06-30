@@ -1,25 +1,36 @@
 services:
-  bot:
+  dld-quiz-bot-app:
     image: ghcr.io/mykytakuzminov/dld-quiz-bot:latest
-    restart: always
-    env_file:
-      - .env
+    container_name: dld-quiz-bot-app
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - ASYNCPG_URL=${ASYNCPG_URL}
+      - TEST_DATABASE_URL=${TEST_DATABASE_URL}
+      - TEST_ASYNCPG_URL=${TEST_ASYNCPG_URL}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     depends_on:
-      db:
+      dld-quiz-bot-postgres:
         condition: service_healthy
+    restart: unless-stopped
 
-  db:
-    image: postgres:16
-    restart: always
-    env_file:
-      - .env
+  dld-quiz-bot-postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d dld_quiz_bot"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
 volumes:
-  pg_data:
+  postgres_data:
